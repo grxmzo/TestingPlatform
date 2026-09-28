@@ -16,10 +16,69 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Student>()
-            .HasOne(s => s.User)
-            .WithOne(u => u.Student)
-            .HasForeignKey<Student>(s => s.UserId);
+        modelBuilder.Entity<User>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.HasIndex(x => x.Login).IsUnique();
+            e.HasIndex(x => x.Email).IsUnique();
+            e.Property(x => x.Login).IsRequired().HasMaxLength(50);
+            e.Property(x => x.Email).IsRequired().HasMaxLength(100);
+            e.Property(x => x.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            e.HasOne(x => x.Student)
+                .WithOne(s => s.User)
+                .HasForeignKey<Student>(s => s.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Student>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Phone).IsRequired().HasMaxLength(30);
+            e.Property(x => x.VkProfileLink).IsRequired();
+        });
+
+        modelBuilder.Entity<Direction>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Name).IsRequired();
+            e.HasIndex(x => x.Name).IsUnique();
+        });
+
+        modelBuilder.Entity<Course>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Name).IsRequired();
+            e.HasIndex(x => x.Name).IsUnique();
+        });
+
+        modelBuilder.Entity<Project>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Name).IsRequired();
+            e.HasIndex(x => x.Name).IsUnique();
+        });
+
+        modelBuilder.Entity<Group>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Name).IsRequired();
+            e.HasIndex(x => x.Name).IsUnique();
+
+            e.HasOne(x => x.Direction)
+                .WithMany(d => d.Groups)
+                .HasForeignKey(x => x.DirectionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasOne(x => x.Course)
+                .WithMany(c => c.Groups)
+                .HasForeignKey(x => x.CourseId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasOne(x => x.Project)
+                .WithMany(p => p.Groups)
+                .HasForeignKey(x => x.ProjectId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
 
         base.OnModelCreating(modelBuilder);
     }
