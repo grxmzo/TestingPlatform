@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace TestingPlatform.Models;
 
 public class Group
@@ -14,5 +16,8 @@ public class Group
     public int ProjectId { get; set; }
     public Project? Project { get; set; }
 
+    [JsonIgnore]
     public List<Student> Students { get; set; } = new();
+    [JsonIgnore]
+    public List<Test> Tests { get; set; } = new();
 }

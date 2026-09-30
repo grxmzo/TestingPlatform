@@ -9,4 +9,6 @@ public class Direction
 
     [JsonIgnore]
     public List<Group> Groups { get; set; } = new();
+    [JsonIgnore]
+    public List<Test> Tests { get; set; } = new();
 }
