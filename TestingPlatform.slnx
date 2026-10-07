@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="TestingPlatform.Application/TestingPlatform.Application.csproj" />
+  <Project Path="TestingPlatform.Domain/TestingPlatform.Domain.csproj" />
+  <Project Path="TestingPlatform.Infrastructure/TestingPlatform.Infrastructure.csproj" />
+  <Project Path="TestingPlatform/TestingPlatform.csproj" />
+</Solution>

@@ -1,0 +1,14 @@
+using System.Text.Json.Serialization;
+
+namespace TestingPlatform.Domain.Models;
+
+public class Project
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+
+    [JsonIgnore]
+    public List<Group> Groups { get; set; } = new();
+    [JsonIgnore]
+    public List<Test> Tests { get; set; } = new();
+}
