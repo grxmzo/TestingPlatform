@@ -1,84 +1,45 @@
-//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.EntityFrameworkCore;
-//using TestingPlatform.Data;
-//using TestingPlatform.Models;
+using Microsoft.AspNetCore.Mvc;
+using TestingPlatform.Application.Dtos;
+using TestingPlatform.Application.Interfaces;
 
-//namespace TestingPlatform.Controllers;
+namespace TestingPlatform.Controllers;
 
-//[ApiController]
-//[Route("api/[controller]")]
-//public class GroupsController : ControllerBase
-//{
-//    private readonly AppDbContext _db;
+[ApiController]
+[Route("api/[controller]")]
+public class GroupsController(IGroupRepository groupRepository) : ControllerBase
+{
+    [HttpGet]
+    public IActionResult GetAllGroups()
+    {
+        var groups = groupRepository.GetAll();
+        return Ok(groups);
+    }
 
-//    public GroupsController(AppDbContext db)
-//    {
-//        _db = db;
-//    }
+    [HttpGet("{id:int}")]
+    public IActionResult GetGroupById(int id)
+    {
+        var group = groupRepository.GetById(id);
+        return Ok(group);
+    }
 
-//    [HttpGet]
-//    public IActionResult GetAllGroups()
-//    {
-//        var groups = _db.Groups
-//            .Include(g => g.Project)
-//            .Include(g => g.Course)
-//            .Include(g => g.Direction)
-//            .Include(g => g.Students)
-//            .ToList();
-//        return Ok(groups);
-//    }
+    [HttpPost]
+    public IActionResult CreateGroup([FromBody] GroupDto group)
+    {
+        var id = groupRepository.Create(group);
+        return StatusCode(StatusCodes.Status201Created, new { Id = id });
+    }
 
-//    [HttpGet("{id:int}")]
-//    public IActionResult GetGroupById(int id)
-//    {
-//        if (id <= 0)
-//            return BadRequest("Некорректный id");
+    [HttpPut("{id:int}")]
+    public IActionResult UpdateGroup([FromBody] GroupDto group)
+    {
+        groupRepository.Update(group);
+        return NoContent();
+    }
 
-//        var group = _db.Groups
-//            .Include(g => g.Project)
-//            .Include(g => g.Course)
-//            .Include(g => g.Direction)
-//            .Include(g => g.Students)
-//            .FirstOrDefault(g => g.Id == id);
-
-//        if (group is null)
-//            return NotFound();
-
-//        return Ok(group);
-//    }
-
-//    [HttpPost]
-//    public IActionResult CreateGroup([FromBody] Group group)
-//    {
-//        _db.Groups.Add(group);
-//        _db.SaveChanges();
-
-//        return Created();
-//    }
-
-//    [HttpPut("{id:int}")]
-//    public IActionResult UpdateGroup([FromBody] Group group)
-//    {
-//        var exists = _db.Groups.FirstOrDefault(g => g.Id == group.Id);
-//        if (exists == default)
-//            //return NotFound();
-
-//        _db.Entry(group).State = EntityState.Modified;
-//        _db.SaveChanges();
-
-//        return NoContent();
-//    }
-
-//    [HttpDelete("{id:int}")]
-//    public IActionResult DeleteGroup(int id)
-//    {
-//        var group = _db.Groups.Find(id);
-//        if (group is null)
-//            return NotFound();
-
-//        _db.Groups.Remove(group);
-//        _db.SaveChanges();
-
-//        return NoContent();
-//    }
-//}
+    [HttpDelete("{id:int}")]
+    public IActionResult DeleteGroup(int id)
+    {
+        groupRepository.Delete(id);
+        return NoContent();
+    }
+}
