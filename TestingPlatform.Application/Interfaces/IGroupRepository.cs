@@ -4,9 +4,9 @@ namespace TestingPlatform.Application.Interfaces;
 
 public interface IGroupRepository
 {
-    List<GroupDto> GetAll();
-    GroupDto GetById(int id);
-    int Create(GroupDto groupDto);
-    void Update(GroupDto groupDto);
-    void Delete(int id);
+    Task<List<GroupDto>> GetAllAsync();
+    Task<GroupDto> GetByIdAsync(int id);
+    Task<int> CreateAsync(GroupDto groupDto);
+    Task UpdateAsync(GroupDto groupDto);
+    Task DeleteAsync(int id);
 }

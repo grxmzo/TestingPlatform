@@ -15,7 +15,11 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-builder.Services.AddAutoMapper(cfg => cfg.AddMaps("TestingPlatform.Infrastructure"));
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddMaps("TestingPlatform.Infrastructure");
+    cfg.AddMaps("TestingPlatform");
+});
 
 var app = builder.Build();
 
