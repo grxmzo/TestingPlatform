@@ -64,7 +64,7 @@ namespace TestingPlatform.Infrastructure.Migrations
                     b.Property<int?>("Score")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset>("StartedAt")
+                    b.Property<DateTime>("StartedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
@@ -72,7 +72,7 @@ namespace TestingPlatform.Infrastructure.Migrations
                     b.Property<int>("StudentId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset?>("SubmittedAt")
+                    b.Property<DateTime?>("SubmittedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("TestId")

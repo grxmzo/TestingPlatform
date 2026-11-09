@@ -13,7 +13,7 @@ public class User
     public string? MiddleName { get; set; }
     public string LastName { get; set; } = string.Empty;
     public UserRole Role { get; set; }
-    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     [JsonIgnore]
     public Student? Student { get; set; }

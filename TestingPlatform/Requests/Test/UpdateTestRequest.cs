@@ -10,8 +10,8 @@ public class UpdateTestRequest
     [Required] public string Description { get; set; } = string.Empty;
     public bool IsRepeatable { get; set; }
     public TestType Type { get; set; }
-    public DateTimeOffset PublishedAt { get; set; }
-    public DateTimeOffset Deadline { get; set; }
+    public DateTime PublishedAt { get; set; } // БЫЛО DateTimeOffset
+    public DateTime Deadline { get; set; }    // БЫЛО DateTimeOffset
     public int? DurationMinutes { get; set; }
     public bool IsPublic { get; set; }
     public int? PassingScore { get; set; }

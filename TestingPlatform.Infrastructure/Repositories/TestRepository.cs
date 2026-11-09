@@ -8,30 +8,69 @@ namespace TestingPlatform.Infrastructure.Repositories;
 
 public class TestRepository(AppDbContext appDbContext, IMapper mapper) : ITestRepository
 {
-    public async Task<IEnumerable<TestDto>> GetAllAsync()
+    public async Task<IEnumerable<TestDto>> GetAllAsync(bool? isPublic, List<int> groupIds, List<int> studentIds)
     {
-        var tests = await appDbContext.Tests.AsNoTracking().ToListAsync();
+        var tests = appDbContext.Tests
+            .OrderByDescending(t => t.PublishedAt)
+            .ThenBy(t => t.Title)
+            .AsNoTracking()
+            .AsQueryable();
+
+        if (isPublic is not null)
+            tests = tests.Where(t => t.IsPublic == isPublic);
+
+        if (groupIds != null && groupIds.Any())
+            tests = tests.Where(t => t.Groups.Any(g => groupIds.Contains(g.Id)));
+
+        if (studentIds != null && studentIds.Any())
+            tests = tests.Where(t => t.Students.Any(s => studentIds.Contains(s.Id)));
+
+        return mapper.Map<IEnumerable<TestDto>>(await tests.ToListAsync());
+    }
+
+    public async Task<IEnumerable<TestDto>> GetAllForStudent(int studentId)
+    {
+        var tests = await appDbContext.Tests
+            .Where(t => t.IsPublic)
+            .Where(t =>
+                t.Students.Any(s => s.Id == studentId)
+                || t.Courses.Any(c => c.Groups.Any(g => g.Students.Any(s => s.Id == studentId)))
+                || t.Projects.Any(p => p.Groups.Any(g => g.Students.Any(s => s.Id == studentId)))
+                || t.Directions.Any(d => d.Groups.Any(g => g.Students.Any(s => s.Id == studentId)))
+            )
+            .ToListAsync();
+
         return mapper.Map<IEnumerable<TestDto>>(tests);
     }
 
     public async Task<TestDto> GetByIdAsync(int id)
     {
-        var test = await appDbContext.Tests.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id);
+        var test = await appDbContext.Tests
+            .Include(test => test.Directions)
+            .Include(test => test.Courses)
+            .Include(test => test.Groups)
+            .Include(test => test.Projects)
+            .Include(test => test.Students)
+            .ThenInclude(student => student.User)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(test => test.Id == id);
+
         if (test == null) throw new Exception("Тест не найден.");
+
         return mapper.Map<TestDto>(test);
     }
 
     public async Task<int> CreateAsync(TestDto testDto)
     {
         var test = mapper.Map<Test>(testDto);
-        await appDbContext.AddAsync(test);
+        var testId = await appDbContext.AddAsync(test);
         await appDbContext.SaveChangesAsync();
-        return test.Id;
+        return testId.Entity.Id;
     }
 
     public async Task UpdateAsync(TestDto testDto)
     {
-        var test = await appDbContext.Tests.FirstOrDefaultAsync(t => t.Id == testDto.Id);
+        var test = await appDbContext.Tests.FirstOrDefaultAsync(test => test.Id == testDto.Id);
         if (test == null) throw new Exception("Тест не найден.");
 
         test.Title = testDto.Title;
@@ -50,10 +89,21 @@ public class TestRepository(AppDbContext appDbContext, IMapper mapper) : ITestRe
 
     public async Task DeleteAsync(int id)
     {
-        var test = await appDbContext.Tests.FirstOrDefaultAsync(t => t.Id == id);
+        var test = await appDbContext.Tests.FirstOrDefaultAsync(test => test.Id == id);
         if (test == null) throw new Exception("Тест не найден.");
 
         appDbContext.Tests.Remove(test);
         await appDbContext.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<TestDto>> GetTopRecentAsync(int count = 5)
+    {
+        var tests = await appDbContext.Tests.AsNoTracking()
+            .OrderByDescending(t => t.PublishedAt)
+            .ThenByDescending(t => t.Id)
+            .Take(count)
+            .ToListAsync();
+
+        return mapper.Map<IEnumerable<TestDto>>(tests);
     }
 }
